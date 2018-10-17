@@ -117,3 +117,17 @@ void insertion_n(List *list, int new, int place)
 }
 
 
+void suppression(List *list)
+{
+    if (list == NULL)
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    if (list->first != NULL)
+    {
+        Element *aSupprimer = list->first;
+        list->first = list->first->next;
+        free(aSupprimer);
+    }
+}
