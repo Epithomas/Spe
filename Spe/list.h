@@ -1,5 +1,5 @@
-#ifndef LIST.H
-#define LIST.H
+#ifndef LIST_H
+#define LIST_H
 
 typedef struct Element Element;
 struct Element
@@ -21,5 +21,6 @@ void afficherListe(List *list);
 void insertion_n(List *list, int new, int place);
 int fromlist(List *list, int n);
 void suppression(List *list);
+void clean(List * list);
 
 #endif

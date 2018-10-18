@@ -131,3 +131,49 @@ void suppression(List *list)
         free(aSupprimer);
     }
 }
+
+void clean(List *list)
+{
+  //si liste nulle
+  if(list == NULL)
+    {
+      exit(EXIT_FAILURE);
+    }
+
+  List *buffer = initialisation();
+  int curr, curr2;
+  int i =0;
+  int j =0;
+  int found = 0;
+  
+  while(fromlist(list, i) != -1)
+    {
+      //initialisation interne
+      j = 0;
+      found = 0;
+      
+      curr = fromlist(list, i);
+      curr2 = fromlist(buffer,j);
+
+
+      //bouclages
+      while(curr2 != -1 && !found)
+	{
+	  if(curr != curr2)
+	    {
+	      j++;
+	      curr2 = fromlist(buffer,j);
+	    }
+	  else
+	    {
+	      found = 1;
+	    }
+	}
+      if(!found)
+	{
+	  insertion(buffer, curr);
+	}
+      i++;
+    }
+  *list = *buffer;
+}

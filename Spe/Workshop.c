@@ -26,139 +26,159 @@ struct Vector4
   int t;
 };
 
-List *borders(Matrix array, double base, Vector2 start, List *actual)
+//--------------------------------------------------------------------//
+//--------------------------NEIGHBOURS--------------------------------//
+//--------------------------------------------------------------------//
+
+//rempli une liste des voisins du top de la liste actual
+//_dans next si pas de contraste par rapport a la base
+//_dans contrast si contrast
+//note la cellule visitee, marqueur: -1
+
+void neighbours(Matrix array, List *actual, List *next, List *contrast, double base)
 {
-  //printf("x= %i, y=%i \n",start.x, start.y);
+  double cell = 0;
   
-  if(*(array.pt + start.x*array.columns + start.y) == -1)
-    {
-      return actual;
-    }
-  *(array.pt + start.x*array.columns + start.y) = -1;
+  //get coor
+  //take number of columns
+  int L = array.columns;
   
-  
-  int up = 0;
-  int down = 0;
-  int right = 0;
-  int left = 0;
+  Vector2 pos;
+  pos.x = fromlist(actual,0)/L;
+  pos.y = fromlist(actual,0)%L;
+  suppression(actual);
 
-  double cell;
-  Vector2 newStart = start;
   
-  //test if limit of array
 
-  if(start.x < array.rows-1)
+  // printf("x: %d, y: %d\n",pos.x, pos.y);
+
+ 
+  //up
+  if(pos.x > 0)
     {
-      down = 1;
-    }
-  if(start.x > 0)
-    {
-      up = 1;
-    }
-  if(start.y < array.columns-1)
-    {
-      right = 1;
-    }
-  if(start.y > 0)
-    {
-      left = 1;
-    }
-    
-  //actualise
-  if(up)
-    {
-     
-      cell = *(array.pt + (start.x -1)*array.columns + start.y);
-      newStart.x --;
-      
-      printf("up sur: %i.%i \n",start.x,start.y);
-      
+      cell = *(array.pt + (pos.x-1)*array.columns + pos.y);
       if(cell == base)
 	{
-	  actual = borders(array, base,newStart, actual);
+	  insertion(next, (pos.x-1)*L+pos.y);
 	}
-      else
+      else if(cell != -1)
 	{
-	  // insertion(actual,newStart.x+newStart.y/1000);
+	  insertion(contrast, (pos.x-1)*L + pos.y);
 	}
     }
-
-    if(down)
+  //down
+  if(pos.x < array.rows-1)
     {
-     
-      cell = *(array.pt + (start.x +1)*array.columns + start.y);
-      newStart.x ++;
+      cell = *(array.pt + (pos.x+1)*array.columns + pos.y);
       if(cell == base)
 	{
-	  
-	  actual = borders(array, base,newStart, actual);
+	  insertion(next, (pos.x+1)*L + pos.y);
 	}
-      else
+      else if(cell != -1)
 	{
-	  // insertion(actual,newStart.x+newStart.y/1000);
+	  insertion(contrast, (pos.x+1)*L+ pos.y);
 	}
     }
-  cell = -1;
-  
-  if(left)
+  //left
+  if(pos.y > 0)
     {
-      cell = *(array.pt + start.x*array.columns + start.y -1);
-      newStart.y --;
+      cell = *(array.pt + (pos.x)*array.columns + pos.y-1);
       if(cell == base)
 	{
-	  actual = borders(array, base,newStart, actual);
+	  insertion(next, pos.x*L +pos.y-1);
 	}
-      else
+      else if(cell != -1)
 	{
-	  // insertion(actual,newStart.x+newStart.y/1000);
+	  insertion(contrast, pos.x*L + pos.y-1);
 	}
     }
-  
-  if(right)
+  //right
+  if(pos.y < array.columns-1)
     {
-      cell = *(array.pt + start.x*array.columns + start.y +1);
-      newStart.y ++;
+      cell = *(array.pt + (pos.x)*array.columns + pos.y+1);
       if(cell == base)
 	{
-	  actual = borders(array, base,newStart, actual);
+	  insertion(next, pos.x*L + pos.y+1);
 	}
-      else
+      else if(cell != -1)
 	{
-	  // insertion(actual,newStart.x+newStart.y/1000);
+	  insertion(contrast, pos.x*L + pos.y+1);
 	}
     }
-  
 
-  
-
-  cell = -1;
-
-
-
-
-  
-  return actual;
+  //put a mark on the cell;
+   *(array.pt + (pos.x)*array.columns + pos.y) = -1;
 }
+
+//-----------------------------------------------------------//
+//--------------------Propa----------------------------------//
+//-----------------------------------------------------------//
+
+//renvoi le contraste depuis la 1ere cellule de la liste actual
+//rempli la liste contrast
+//pour valeur de comparaison: la valeur de la premiere entre de curr[ent];
+
+
+void propa(Matrix array, List *curr, List *next, List *contrast)
+{
+  //List *link = initialisation();
+
+  int boucle = 1;
+  insertion(curr,0);
+  insertion(curr,0);
+
+  double base = *(array.pt);
+  
+  while(boucle)
+    {
+      while(fromlist(curr,0) != -1)
+	{
+	  //printf("boucle \n");
+	  neighbours(array, curr, next, contrast,0);
+	}
+      if(fromlist(next,0) == -1)
+	{
+	  boucle = 0;
+	}
+      else
+	{
+	  curr = next;
+	  next = initialisation();
+	}
+    }
+}
+
+
 
 int main()
 {
   Matrix array = init_matrix_zero(10,10);
   //print_matrix(array);
-  Vector2 start;
-  start.x = 0;
-  start.y =0;
   
-  List *list = initialisation();
-  //list =  borders(array, 0,start,list );
-  //afficherListe(list);
+  List *curr = initialisation();
+  List *next = initialisation();
+  List *contrast = initialisation();
 
-  
+  //*(array.pt + 0*array.columns + 0) = 1;
   //*(array.pt + (start.x)*array.columns + start.y) = 2;
-  //*(array.pt + (start.x +1)*array.columns + start.y) = 1;
-  //*(array.pt + (start.x -1)*array.columns + start.y) = 1;
+  *(array.pt + 1*array.columns + 1) = 5;
+  *(array.pt + 1*array.columns + 2) = 5;
+  *(array.pt + 1*array.columns + 3) = 5;
+  *(array.pt + 2*array.columns + 3) = 5;
+  *(array.pt + 3*array.columns + 3) = 5;
+  *(array.pt + 3*array.columns + 2) = 5;
+  *(array.pt + 3*array.columns + 1) = 5;
+  *(array.pt + 2*array.columns + 1) = 5;
+    
+  propa(array,curr,next,contrast);
+  clean(contrast);
+  afficherListe(contrast);
+  afficherListe(next);
+  
   //*(array.pt + (start.x)*array.columns + start.y+1) = 1;
   //*(array.pt + (start.x)*array.columns + start.y-1) = 1;
-  print_matrix(array);
   
+  print_matrix(array);
+
   return (0);
 }
